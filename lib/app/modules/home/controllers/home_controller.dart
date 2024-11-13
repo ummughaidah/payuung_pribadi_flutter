@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:payung_pribadi/app/data/database/database_helper.dart';
 
 class HomeController extends GetxController with SingleGetTickerProviderMixin {
   TabController? tabController;
@@ -9,19 +10,22 @@ class HomeController extends GetxController with SingleGetTickerProviderMixin {
   TextEditingController? emailController;
   TextEditingController? passwordController;
 
+  var wellnessList = <Map<String, dynamic>>[].obs;
+  final dbHelper = DatabaseHelper.instance;
+
   final tabs = [
     const Tab(text: 'Payuung Pribadi'),
     const Tab(text: 'Payuung Karyawan')
   ];
 
-  var isExpanded = false.obs; 
+  var isExpanded = false.obs;
 
   void setExpanded(bool value) {
-    isExpanded.value = value; 
+    isExpanded.value = value;
   }
 
   void toggleSheet() {
-    isExpanded.value = !isExpanded.value; 
+    isExpanded.value = !isExpanded.value;
   }
 
   @override
@@ -30,6 +34,7 @@ class HomeController extends GetxController with SingleGetTickerProviderMixin {
     tabController = TabController(length: tabs.length, vsync: this);
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    fetchWellnessData();
   }
 
   @override
@@ -38,5 +43,15 @@ class HomeController extends GetxController with SingleGetTickerProviderMixin {
     tabController?.dispose();
     emailController?.dispose();
     passwordController?.dispose();
+  }
+
+  Future<void> fetchWellnessData() async {
+    try {
+      List<Map<String, dynamic>> data = await dbHelper.getDataWellness();
+      wellnessList.value = data;
+      debugPrint('Isi Data Wellness $data');
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
   }
 }
